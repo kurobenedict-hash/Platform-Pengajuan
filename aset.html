@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aset Crypto - OZCRYPTO</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fafafa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+    button, input {
+      font-family: inherit;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+
+    .header {
+      background: linear-gradient(135deg, #186422 0%, #19864a 100%);
+      padding: 30px 20px 45px;
+      text-align: center;
+      position: relative;
+    }
+    .logo-circle {
+      width: 90px;
+      height: 90px;
+      background: #fff;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      padding: 12px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.5s ease;
+    }
+    .logo-circle:hover {
+      transform: scale(1.07);
+      box-shadow: 0 0 30px rgba(255,255,255,0.8);
+    }
+    .logo-svg {
+      width: 70px;
+      height: 70px;
+    }
+
+    .username {
+      font-weight: 700;
+      font-size: 18px;
+      color: white;
+      letter-spacing: 0.02em;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      margin-bottom: 4px;
+      user-select: none;
+    }
+    .balance {
+      font-weight: 600;
+      font-size: 14px;
+      color: #fffacd;
+      letter-spacing: 0.03em;
+      user-select: none;
+    }
+
+    .button-group {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: nowrap;
+    }
+    .btn {
+      flex: 1 1 140px;
+      border: none;
+      border-radius: 28px;
+      padding: 13px 0;
+      font-weight: 700;
+      font-size: 15px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                  box-shadow 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+      user-select: none;
+    }
+    .btn-setoran {
+      background: linear-gradient(90deg, #a80909, #ce0202);
+    }
+    .btn-setoran:hover, .btn-setoran:focus {
+      background: linear-gradient(90deg, #c00, #e00);
+      box-shadow: 0 7px 12px rgba(255, 126, 0, 0.7);
+      transform: translateY(-3px);
+      outline: none;
+    }
+    .btn-tarik {
+      background: linear-gradient(90deg, #a80909, #ce0202);
+    }
+    .btn-tarik:hover, .btn-tarik:focus {
+      background: linear-gradient(90deg, #c00, #e00);
+      box-shadow: 0 7px 12px rgba(0, 176, 255, 0.7);
+      transform: translateY(-3px);
+      outline: none;
+    }
+
+    .menu {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid #e0e0e0;
+      user-select: none;
+      flex-grow: 1;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid #eee;
+      color: #a80909;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: white;
+      transition: background-color 0.25s ease, color 0.3s ease;
+      position: relative;
+    }
+    .menu-item:hover, .menu-item:focus {
+      background-color: #ffeaea;
+      color: #ce0202;
+      outline: none;
+    }
+    .menu-item svg {
+      margin-right: 16px;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke: currentColor;
+      transition: stroke 0.3s ease;
+    }
+    .green-icon { color: #388e3c; }
+    .orange-icon { color: #fbc02d; }
+    .blue-icon { color: #64b5f6; }
+    .green-light-icon { color: #8bc34a; }
+    .purple-icon { color: #ba68c8; }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .loading-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .spinner {
+      border: 5px solid #eee;
+      border-top: 5px solid #ce0202;
+      border-radius: 50%;
+      width: 54px;
+      height: 54px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .detail-page {
+      padding: 20px 25px;
+    }
+    .logo-circle:hover {
+      transform: scale(1.05);
+    }
+    .logo-svg {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+    }
+    .title {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+    .content {
+      padding: 20px;
+      flex: 1;
+    }
+    .nav-menu {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      background: #f0f0f0;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .nav-btn:hover {
+      background: #e0e0e0;
+    }
+    .btn-back {
+      background: none;
+      border: none;
+      color: #ce0202;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    .btn-back:hover, .btn-back:focus {
+      color: #ce0202;
+      outline: none;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    li:last-child {
+      border-bottom: none;
+    }
+    @media (min-width: 769px) {
+      body { padding: 40px; }
+      .container { max-width: 800px; }
+      .header { padding: 40px 25px 55px; }
+      .logo-circle { width: 100px; height: 100px; }
+      .logo-svg { width: 80px; height: 80px; }
+      .title { font-size: 20px; }
+      .content { padding: 25px 30px; }
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e0e0e0;
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #666;
+      font-size: 12px;
+      transition: color 0.3s ease;
+      padding: 5px;
+      border-radius: 8px;
+      min-width: 60px;
+    }
+    .bottom-nav-item:hover, .bottom-nav-item.active {
+      color: #186422;
+      background: #f0f8f0;
+    }
+    .bottom-nav-item svg {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 4px;
+      fill: currentColor;
+    }
+    body {
+      padding-bottom: 80px; /* Space for bottom nav */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo-circle" aria-label="Logo OZCRYPTO">
+        <img src="https://javaexchange.oss-ap-southeast-1.aliyuncs.com/echo2.0b267ce8994194f6080bd8160abe4ea73.jpg" alt="Logo OZCRYPTO" class="logo-svg">
+      </div>
+      <p class="username" id="username">ID : ...</p>
+      <p class="balance" id="balance">Saldo: Rp ...</p>
+
+      <div class="button-group">
+        <button id="btnSetoran" class="btn btn-setoran" type="button" aria-label="Setoran">Setoran</button>
+        <button id="btnTarik" class="btn btn-tarik" type="button" aria-label="Tarik">Tarik</button>
+      </div>
+    </header>
+
+    <ul class="menu" role="menu" aria-label="Menu opsi">
+      <li tabindex="0" role="menuitem" class="menu-item green-icon" id="menuAliranDana" aria-label="Aliran dana">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
+          <path d="M3 10h18"/>
+          <path d="M9 6v8"/>
+        </svg>
+        Aliran dana
+      </li>
+
+      <li tabindex="0" role="menuitem" class="menu-item orange-icon" id="menuRiwayat" aria-label="Riwayat transaksi">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Riwayat transaksi
+      </li>
+
+      <li tabindex="0" role="menuitem" class="menu-item blue-icon" id="menuUbahKataSandiMasuk" aria-label="Ubah kata sandi masuk">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <rect x="7" y="10" width="10" height="6" rx="2" ry="2"/>
+          <path d="M12 14v2"/>
+        </svg>
+        Ubah kata sandi masuk
+      </li>
+
+      <li tabindex="0" role="menuitem" class="menu-item blue-icon" id="menuUbahKataSandiTarik" aria-label="Ubah kata sandi penarikan">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <rect x="7" y="10" width="10" height="6" rx="2" ry="2"/>
+          <path d="M12 14v2"/>
+        </svg>
+        Ubah kata sandi penarikan
+      </li>
+
+      <li tabindex="0" role="menuitem" class="menu-item green-light-icon" id="menuKeluar" aria-label="Keluar">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 13v-2H7V8l-5 4 5 4v-3h9z"/>
+          <path d="M20 3H10v2h10v14H10v2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/>
+        </svg>
+        Keluar
+      </li>
+    </ul>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <script>
+    // ===== User Session =====
+    let currentUserID = localStorage.getItem('currentUserID');
+
+    // ===== Utility Functions =====
+    function setLoading(loading) {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      if (loading) loadingOverlay.classList.add('active');
+      else loadingOverlay.classList.remove('active');
+    }
+
+    function formatRupiah(number) {
+      if (typeof number !== 'number') return 'Rp 0';
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+    }
+
+    async function fetchUserData() {
+      setLoading(true);
+      try {
+        await new Promise(resolve => setTimeout(resolve, 900));
+        return {
+          username: currentUserID || 'Guest',
+          balance: 141611108
+        };
+      } catch (error) {
+        alert('Gagal mengambil data user: ' + error.message);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // ===== Page Navigation =====
+    function showLoginPage() {
+      window.location.href = 'Index.html';
+    }
+
+    function renderDashboard() {
+      if (!currentUserID) {
+        showLoginPage();
+        return;
+      }
+
+      fetchUserData().then(userData => {
+        if (userData) {
+          document.getElementById('username').textContent = `ID : ${userData.username}`;
+          document.getElementById('balance').textContent = `Saldo: ${formatRupiah(userData.balance)}`;
+        }
+      });
+    }
+
+    // ===== Event Listeners =====
+    document.getElementById('btnSetoran').addEventListener('click', () => {
+      alert('Fitur setoran akan segera hadir!');
+    });
+
+    document.getElementById('btnTarik').addEventListener('click', () => {
+      alert('Fitur tarik akan segera hadir!');
+    });
+
+    document.getElementById('menuAliranDana').addEventListener('click', () => {
+      alert('Menu Aliran Dana akan segera hadir!');
+    });
+
+    document.getElementById('menuRiwayat').addEventListener('click', () => {
+      alert('Menu Riwayat Transaksi akan segera hadir!');
+    });
+
+    document.getElementById('menuUbahKataSandiMasuk').addEventListener('click', () => {
+      alert('Menu Ubah Kata Sandi Masuk akan segera hadir!');
+    });
+
+    document.getElementById('menuUbahKataSandiTarik').addEventListener('click', () => {
+      alert('Menu Ubah Kata Sandi Penarikan akan segera hadir!');
+    });
+
+    document.getElementById('menuKeluar').addEventListener('click', () => {
+      if (confirm('Anda yakin ingin keluar?')) {
+        currentUserID = null;
+        localStorage.removeItem('currentUserID');
+        showLoginPage();
+      }
+    });
+
+    // ===== Initialization =====
+    function init() {
+      renderDashboard();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+  <nav class="bottom-nav">
+    <a href="frontpage.html" class="bottom-nav-item">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9,22 9,12 15,12 15,22"/>
+      </svg>
+      Halaman Depan
+    </a>
+    <a href="quotes.html" class="bottom-nav-item">
+      <svg viewBox="0 0 24 24">
+        <line x1="18" y1="20" x2="18" y2="10"/>
+        <line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+      Kutipan
+    </a>
+    <a href="service.html" class="bottom-nav-item">
+      <svg viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      Service
+    </a>
+    <a href="aset.html" class="bottom-nav-item active">
+      <svg viewBox="0 0 24 24">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+        <line x1="8" y1="21" x2="16" y2="21"/>
+        <line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+      Aset
+    </a>
+  </nav>
+</body>
+</html></content>

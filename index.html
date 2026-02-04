@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Platform OZCRYPTO dengan Backend & Detail Menu</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fafafa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+    button, input {
+      font-family: inherit;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+
+    .header {
+      background: linear-gradient(135deg, #186422 0%, #19864a 100%);
+      padding: 30px 20px 45px;
+      text-align: center;
+      position: relative;
+    }
+    .logo-circle {
+      width: 90px;
+      height: 90px;
+      background: #fff;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      padding: 12px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.5s ease;
+    }
+    .logo-circle:hover {
+      transform: scale(1.07);
+      box-shadow: 0 0 30px rgba(255,255,255,0.8);
+    }
+    .logo-svg {
+      width: 70px;
+      height: 70px;
+    }
+
+    .username {
+      font-weight: 700;
+      font-size: 18px;
+      color: white;
+      letter-spacing: 0.02em;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      margin-bottom: 4px;
+      user-select: none;
+    }
+    .balance {
+      font-weight: 600;
+      font-size: 14px;
+      color: #fffacd;
+      letter-spacing: 0.03em;
+      user-select: none;
+    }
+
+    .button-group {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: nowrap;
+    }
+    .btn {
+      flex: 1 1 140px;
+      border: none;
+      border-radius: 28px;
+      padding: 13px 0;
+      font-weight: 700;
+      font-size: 15px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                  box-shadow 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+      user-select: none;
+    }
+    .btn-setoran {
+      background: linear-gradient(90deg, #a80909, #ce0202);
+    }
+    .btn-setoran:hover, .btn-setoran:focus {
+      background: linear-gradient(90deg, #c00, #e00);
+      box-shadow: 0 7px 12px rgba(255, 126, 0, 0.7);
+      transform: translateY(-3px);
+      outline: none;
+    }
+    .btn-tarik {
+      background: linear-gradient(90deg, #a80909, #ce0202);
+    }
+    .btn-tarik:hover, .btn-tarik:focus {
+      background: linear-gradient(90deg, #c00, #e00);
+      box-shadow: 0 7px 12px rgba(0, 176, 255, 0.7);
+      transform: translateY(-3px);
+      outline: none;
+    }
+
+    .menu {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid #e0e0e0;
+      user-select: none;
+      flex-grow: 1;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid #eee;
+      color: #a80909;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: white;
+      transition: background-color 0.25s ease, color 0.3s ease;
+      position: relative;
+    }
+    .menu-item:hover, .menu-item:focus {
+      background-color: #ffeaea;
+      color: #ce0202;
+      outline: none;
+    }
+    .menu-item svg {
+      margin-right: 16px;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke: currentColor;
+      transition: stroke 0.3s ease;
+    }
+    .green-icon { color: #388e3c; }
+    .orange-icon { color: #fbc02d; }
+    .blue-icon { color: #64b5f6; }
+    .green-light-icon { color: #8bc34a; }
+    .purple-icon { color: #ba68c8; }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .loading-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .spinner {
+      border: 5px solid #eee;
+      border-top: 5px solid #ce0202;
+      border-radius: 50%;
+      width: 54px;
+      height: 54px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .detail-page {
+      padding: 20px 25px;
+      flex-grow: 1;
+      background: white;
+    }
+    .detail-page h2 {
+      margin-top: 0;
+      color: #a80909;
+    }
+
+    .login-page {
+      padding: 20px;
+      text-align: center;
+    }
+    .login-content {
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .login-content h1 {
+      color: white;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    input[type=text], input[type=tel], input[type=password] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: border-color 0.3s ease;
+    }
+    input[type=text]:focus, input[type=tel]:focus, input[type=password]:focus {
+      border-color: #ce0202;
+      outline: none;
+    }    .btn-submit {
+      background: #ce0202;
+      border: none;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .btn-submit:hover, .btn-submit:focus {
+      background: #a80909;
+      outline: none;
+    }
+    .btn-back {
+      background: none;
+      border: none;
+      color: #a80909;
+      font-weight: bold;
+      font-size: 14px;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    .btn-back:hover, .btn-back:focus {
+      color: #ce0202;
+      outline: none;
+    }
+
+    @media (min-width: 769px) {
+      body { padding: 40px; }
+    .container { max-width: 800px; }
+    .header { padding: 40px 25px 55px; }
+    .logo-circle { width: 100px; height: 100px; }
+    .logo-svg { width: 80px; height: 80px; }
+    .username { font-size: 20px; }
+    .balance { font-size: 16px; }
+    .button-group { gap: 25px; }
+    .btn { padding: 14px 0; font-size: 16px; }
+    .menu-item { padding: 18px 28px; font-size: 17px; }
+    .detail-page { padding: 25px 30px; }
+    .form-group input { width: 320px; padding: 12px 16px; font-size: 16px; }
+    .btn-submit { padding: 14px 30px; font-size: 17px; }
+  }
+
+
+  @media (min-width: 1024px) and (max-width: 1199px) {
+    body { padding: 50px; }
+    .container { max-width: 900px; }
+    .header { padding: 45px 28px 60px; }
+    .logo-circle { width: 110px; height: 110px; }
+    .logo-svg { width: 85px; height: 85px; }
+    .username { font-size: 21px; }
+    .balance { font-size: 17px; }
+    .button-group { gap: 28px; }
+    .btn { padding: 15px 0; font-size: 17px; }
+    .menu-item { padding: 19px 30px; font-size: 17px; }
+    .detail-page { padding: 27px 32px; }
+    .form-group input { width: 320px; padding: 12px 16px; font-size: 16px; }
+    .btn-submit { padding: 15px 32px; font-size: 17px; }
+  }
+
+
+  @media (min-width: 481px) and (max-width: 768px) {
+    body { padding: 30px; }
+    .container { max-width: 500px; }
+    .header { padding: 35px 20px 50px; }
+    .logo-circle { width: 95px; height: 95px; }
+    .logo-svg { width: 75px; height: 75px; }
+    .username { font-size: 19px; }
+    .balance { font-size: 15px; }
+    .button-group { gap: 20px; }
+    .btn { padding: 13px 0; font-size: 15px; }
+    .menu-item { padding: 17px 26px; font-size: 16px; }
+    .detail-page { padding: 22px 27px; }
+    .form-group input { width: 100%; padding: 12px 16px; font-size: 16px; }
+    .btn-submit { padding: 13px 27px; font-size: 16px; }
+  }
+
+
+  @media (max-width: 480px) {
+    body { padding: 20px; }
+    .container { max-width: 100%; }
+    .header { padding: 30px 15px 40px; }
+    .logo-circle { width: 80px; height: 80px; }
+    .logo-svg { width: 65px; height: 65px; }
+    .username { font-size: 17px; }
+    .balance { font-size: 14px; }
+    .button-group { gap: 15px; }
+    .btn {
+      flex: 1 1 auto;
+      padding: 13px 0;
+      font-size: 15px;
+    }
+    .menu-item { padding: 16px 24px; font-size: 16px; }
+    .detail-page { padding: 20px 25px; }
+    .form-group input { width: 100%; padding: 12px 16px; font-size: 16px; }
+    .btn-submit { padding: 12px 25px; font-size: 16px; }
+  }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Platform User Dashboard">
+    <!-- Halaman Login -->
+    <section id="page-login" class="login-page">
+      <header class="header">
+        <div class="logo-circle" aria-label="Logo OZCRYPTO">
+          <img src="https://javaexchange.oss-ap-southeast-1.aliyuncs.com/echo2.0b267ce8994194f6080bd8160abe4ea73.jpg" alt="Logo OZCRYPTO" class="logo-svg">
+        </div>
+        <h1 style="color: white; margin: 20px 0 10px;">Masuk ke Platform OZCRYPTO</h1>
+      </header>
+      <div class="login-content">
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="userID">ID Pengguna</label>
+            <input type="text" id="userID" name="userID" required placeholder="Masukkan ID Anda" />
+          </div>
+          <div class="form-group">
+            <label for="userPassword">Kata Sandi</label>
+            <input type="password" id="userPassword" name="userPassword" required placeholder="Masukkan Kata Sandi Anda" />
+          </div>
+          <button type="submit" class="btn-submit" id="btnMasuk">Masuk</button>
+          <button type="button" class="btn-submit" id="btnDaftar" style="margin-top: 10px;">Daftar</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Halaman Dashboard -->
+    <section id="page-dashboard" hidden>
+      <header class="header">
+        <div class="logo-circle" aria-label="Logo OZCRYPTO">
+          <img src="https://javaexchange.oss-ap-southeast-1.aliyuncs.com/echo2.0b267ce8994194f6080bd8160abe4ea73.jpg" alt="Logo OZCRYPTO" class="logo-svg">
+        </div>
+        <p class="username" id="username">ID : ...</p>
+        <p class="balance" id="balance">Saldo: Rp ...</p>
+
+        <div class="button-group">
+          <button id="btnSetoran" class="btn btn-setoran" type="button" aria-label="Setoran">Setoran</button>
+          <button id="btnTarik" class="btn btn-tarik" type="button" aria-label="Tarik">Tarik</button>
+        </div>
+      </header>
+
+      <ul class="menu" role="menu" aria-label="Menu opsi">
+        <li tabindex="0" role="menuitem" class="menu-item green-icon" id="menuAliranDana" aria-label="Aliran dana">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
+            <path d="M3 10h18"/>
+            <path d="M9 6v8"/>
+          </svg>
+          Aliran dana
+        </li>
+
+        <li tabindex="0" role="menuitem" class="menu-item orange-icon" id="menuRiwayat" aria-label="Riwayat transaksi">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Riwayat transaksi
+        </li>
+
+        <li tabindex="0" role="menuitem" class="menu-item blue-icon" id="menuUbahKataSandiMasuk" aria-label="Ubah kata sandi masuk">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+            <rect x="7" y="10" width="10" height="6" rx="2" ry="2"/>
+            <path d="M12 14v2"/>
+          </svg>
+          Ubah kata sandi masuk
+        </li>
+
+        <li tabindex="0" role="menuitem" class="menu-item blue-icon" id="menuUbahKataSandiTarik" aria-label="Ubah kata sandi penarikan">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+            <rect x="7" y="10" width="10" height="6" rx="2" ry="2"/>
+            <path d="M12 14v2"/>
+          </svg>
+          Ubah kata sandi penarikan
+        </li>
+
+        <li tabindex="0" role="menuitem" class="menu-item green-icon" id="menuHalamanDepan" aria-label="Halaman Depan">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9,22 9,12 15,12 15,22"/>
+          </svg>
+
+    <!-- Halaman Detail -->
+    <section id="page-detail" class="detail-page" hidden>
+      <button class="btn-back" id="btnBack" aria-label="Kembali ke Dashboard">&larr; Kembali</button>
+      <div id="detail-content">
+        <!-- Konten halaman detail akan diinject di sini -->
+      </div>
+    </section>
+
+    <!-- Halaman Daftar -->
+    <section id="page-register" class="login-page" hidden>
+      <header class="header">
+        <div class="logo-circle" aria-label="Logo OZCRYPTO">
+          <img src="https://javaexchange.oss-ap-southeast-1.aliyuncs.com/echo2.0b267ce8994194f6080bd8160abe4ea73.jpg" alt="Logo OZCRYPTO" class="logo-svg">
+        </div>
+        <h1 style="color: white; margin: 20px 0 10px;">Daftar Akun Baru</h1>
+      </header>
+      <div class="login-content">
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="regNama">Nama Pengguna</label>
+            <input type="text" id="regNama" name="regNama" required placeholder="Masukkan Nama Lengkap Anda" />
+          </div>
+          <div class="form-group">
+            <label for="regPonsel">Nomor Ponsel</label>
+            <input type="tel" id="regPonsel" name="regPonsel" required placeholder="Masukkan Nomor Ponsel Anda" />
+          </div>
+          <div class="form-group">
+            <label for="regPassword">Kata Sandi</label>
+            <input type="password" id="regPassword" name="regPassword" required minlength="6" placeholder="Minimal 6 karakter" />
+          </div>
+          <div class="form-group">
+            <label for="regConfirmPassword">Konfirmasi Kata Sandi</label>
+            <input type="password" id="regConfirmPassword" name="regConfirmPassword" required minlength="6" placeholder="Ulangi Kata Sandi" />
+          </div>
+          <div class="form-group">
+            <label for="regRefCode">Kode Referensi</label>
+            <input type="text" id="regRefCode" name="regRefCode" placeholder="Opsional" />
+          </div>
+          <button type="submit" class="btn-submit">Daftar</button>
+          <button type="button" class="btn-back" id="btnBackToLogin" style="margin-top: 10px;">Kembali ke Login</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay" aria-live="assertive" aria-busy="true" role="alert" aria-label="Loading data">
+    <div class="spinner" aria-hidden="true"></div>
+  </div>
+
+  <script>
+    // ===== API Endpoints =====
+    const API_BASE = 'https://example.com/api'; // Ganti dengan URL backend Anda
+    const API_USER = API_BASE + '/user';
+    const API_CHANGE_PASSWORD = API_BASE + '/change-password';
+
+    // ===== Elemen DOM =====
+    const usernameEl = document.getElementById('username');
+    const balanceEl = document.getElementById('balance');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const pageLogin = document.getElementById('page-login');
+    const pageDashboard = document.getElementById('page-dashboard');
+    const pageDetail = document.getElementById('page-detail');
+    const pageRegister = document.getElementById('page-register');
+    const detailContent = document.getElementById('detail-content');
+    const btnBack = document.getElementById('btnBack');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const btnBackToLogin = document.getElementById('btnBackToLogin');
+
+    // ===== User Session =====
+    let currentUserID = localStorage.getItem('currentUserID');
+
+    // ===== Utility Functions =====
+    function setLoading(loading) {
+      if (loading) loadingOverlay.classList.add('active');
+      else loadingOverlay.classList.remove('active');
+    }
+
+    function formatRupiah(number) {
+      if (typeof number !== 'number') return 'Rp 0';
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+    }
+
+    async function fetchUserData() {
+      setLoading(true);
+      try {
+        await new Promise(resolve => setTimeout(resolve, 900));
+        return {
+          username: currentUserID || 'Guest',
+          balance: 141611108
+        };
+      } catch (error) {
+        alert('Gagal mengambil data user: ' + error.message);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // ===== Page Navigation =====
+    function showLoginPage() {
+      pageLogin.hidden = false;
+      pageDashboard.hidden = true;
+      pageDetail.hidden = true;
+      pageRegister.hidden = true;
+    }
+
+    function showRegisterPage() {
+      pageLogin.hidden = true;
+      pageDashboard.hidden = true;
+      pageDetail.hidden = true;
+      pageRegister.hidden = false;
+    }
+
+    async function renderDashboard() {
+      pageLogin.hidden = true;
+      pageDashboard.hidden = false;
+      pageDetail.hidden = true;
+      const data = await fetchUserData();
+      if (data) {
+        usernameEl.textContent = 'ID : ' + data.username;
+        balanceEl.textContent = ' Saldo: ' + formatRupiah(data.balance);
+      } else {
+        usernameEl.textContent = 'ID : -';
+        balanceEl.textContent = ' Saldo: -';
+      }
+    }
+
+    function showDetailPage(title, htmlContent, onSubmit) {
+      pageDashboard.hidden = true;
+      detailContent.innerHTML = `
+        <h2>${title}</h2>
+        ${htmlContent}
+      `;
+      pageDetail.hidden = false;
+
+      const form = detailContent.querySelector('form');
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(form);
+          const inputs = Object.fromEntries(formData.entries());
+
+          setLoading(true);
+          try {
+            await onSubmit(inputs);
+            alert('Berhasil disimpan!');
+            renderDashboard();
+            backToDashboard();
+          } catch (err) {
+            alert('Gagal: ' + err.message);
+          } finally {
+            setLoading(false);
+          }
+        });
+      }
+    }
+
+    function backToDashboard() {
+      pageDetail.hidden = true;
+      pageDashboard.hidden = false;
+    }
+
+    function initMenuEvents() {
+      document.getElementById('menuAliranDana').addEventListener('click', () => {
+        showDetailPage('Aliran Dana', `
+          <p>Halaman ini menampilkan aliran dana secara detail.</p>
+          <p><em>(Tambahkan fungsi sesuai kebutuhan backend Anda)</em></p>
+        `, async () => {});
+      });
+
+      document.getElementById('menuRiwayat').addEventListener('click', () => {
+        showDetailPage('Riwayat Transaksi', `
+          <p>Daftar riwayat transaksi Anda akan muncul di sini.</p>
+          <p><em>(Integrasikan API riwayat transaksi backend Anda)</em></p>
+        `, async () => {});
+      });
+
+      document.getElementById('menuUbahKataSandiMasuk').addEventListener('click', () => {
+        const formHtml = `
+          <form id="formChangePassword">
+            <div class="form-group">
+              <label for="oldPassword">Kata Sandi Lama</label>
+              <input type="password" id="oldPassword" name="oldPassword" required minlength="6" />
+            </div>
+            <div class="form-group">
+              <label for="newPassword">Kata Sandi Baru</label>
+              <input type="password" id="newPassword" name="newPassword" required minlength="6" />
+            </div>
+            <div class="form-group">
+              <label for="confirmNewPassword">Konfirmasi Kata Sandi Baru</label>
+              <input type="password" id="confirmNewPassword" name="confirmNewPassword" required minlength="6" />
+            </div>
+            <button type="submit" class="btn-submit">Simpan</button>
+          </form>
+        `;
+        showDetailPage('Ubah Kata Sandi Masuk', formHtml, async (inputs) => {
+          if (inputs.newPassword !== inputs.confirmNewPassword) {
+            throw new Error('Kata sandi baru dan konfirmasi tidak sama');
+          }
+          await new Promise(resolve => setTimeout(resolve, 700));
+        });
+      });
+
+      document.getElementById('menuUbahKataSandiTarik').addEventListener('click', () => {
+        const formHtml = `
+          <form id="formChangePasswordWithdrawal">
+            <div class="form-group">
+              <label for="oldPasswordWithdraw">Kata Sandi Penarikan Lama</label>
+              <input type="password" id="oldPasswordWithdraw" name="oldPasswordWithdraw" required minlength="6" />
+            </div>
+            <div class="form-group">
+              <label for="newPasswordWithdraw">Kata Sandi Penarikan Baru</label>
+              <input type="password" id="newPasswordWithdraw" name="newPasswordWithdraw" required minlength="6" />
+            </div>
+            <div class="form-group">
+              <label for="confirmNewPasswordWithdraw">Konfirmasi Kata Sandi Penarikan Baru</label>
+              <input type="password" id="confirmNewPasswordWithdraw" name="confirmNewPasswordWithdraw" required minlength="6" />
+            </div>
+            <button type="submit" class="btn-submit">Simpan</button>
+          </form>
+        `;
+        showDetailPage('Ubah Kata Sandi Penarikan', formHtml, async (inputs) => {
+          if (inputs.newPasswordWithdraw !== inputs.confirmNewPasswordWithdraw) {
+            throw new Error('Kata sandi penarikan baru dan konfirmasi tidak sama');
+          }
+          await new Promise(resolve => setTimeout(resolve, 700));
+        });
+      });
+
+      document.getElementById('menuHalamanDepan').addEventListener('click', () => {
+        window.location.href = 'frontpage.html';
+      });
+
+      document.getElementById('menuKutipan').addEventListener('click', () => {
+        window.location.href = 'quotes.html';
+      });
+
+      document.getElementById('menuAset').addEventListener('click', () => {
+        window.location.href = 'aset.html';
+      });
+
+      document.getElementById('menuService').addEventListener('click', () => {
+        window.location.href = 'service.html';
+      });
+
+      document.getElementById('menuKeluar').addEventListener('click', () => {
+        if (confirm('Anda yakin ingin keluar?')) {
+          currentUserID = null;
+          showLoginPage();
+        }
+      });
+    }
+
+    // ===== Button Event Handlers =====
+    // Tombol kembali
+    btnBack.addEventListener('click', backToDashboard);
+    btnBack.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        backToDashboard();
+      }
+    });
+
+    // Form login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(loginForm);
+      const inputs = Object.fromEntries(formData.entries());
+
+      if (!inputs.userID || !inputs.userPassword) {
+        alert('Harap isi ID dan Kata Sandi.');
+        return;
+      }
+
+      const buttonClicked = e.submitter.id;
+
+      if (buttonClicked === 'btnMasuk') {
+        if (inputs.userID.trim() === 'Julian pang ba hugel' && inputs.userPassword === '123456') {
+          currentUserID = inputs.userID.trim();
+          localStorage.setItem('currentUserID', currentUserID);
+          setLoading(true);
+          try {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            alert('Login berhasil!');
+            window.location.href = 'frontpage.html';
+          } catch (err) {
+            alert('Login gagal: ' + err.message);
+          } finally {
+            setLoading(false);
+          }
+        } else if (inputs.userID.trim() === 'Meita' && inputs.userPassword === '123456') {
+          currentUserID = inputs.userID.trim();
+          localStorage.setItem('currentUserID', currentUserID);
+          setLoading(true);
+          try {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            alert('Login berhasil!');
+            window.location.href = 'frontpage.html';
+          } catch (err) {
+            alert('Login gagal: ' + err.message);
+          } finally {
+            setLoading(false);
+          }
+        } else {
+          alert('ID atau Kata Sandi salah.');
+        }
+      }
+    });
+
+    document.getElementById('btnDaftar').addEventListener('click', showRegisterPage);
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(registerForm);
+      const inputs = Object.fromEntries(formData.entries());
+
+      if (!inputs.regNama || !inputs.regPonsel || !inputs.regPassword || !inputs.regConfirmPassword) {
+        alert('Harap isi semua kolom wajib.');
+        return;
+      }
+
+      if (inputs.regPassword !== inputs.regConfirmPassword) {
+        alert('Kata sandi dan konfirmasi tidak sama.');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        alert('Pendaftaran berhasil! Silakan login dengan akun baru Anda.');
+        showLoginPage();
+      } catch (err) {
+        alert('Pendaftaran gagal: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    btnBackToLogin.addEventListener('click', showLoginPage);
+    document.getElementById('btnSetoran').addEventListener('click', () => {
+      const setoranContent = `
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #a80909; margin-bottom: 15px;">Daftar Isi Setoran</h3>
+          <ul style="list-style-type: none; padding: 0;">
+            <li style="margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 6px; border-left: 4px solid #ff6d00;">
+              <a href="#setoran-tunai" style="text-decoration: none; color: #333; font-weight: 600;">1. Setoran Tunai</a>
+              <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Lakukan setoran uang tunai ke rekening Anda.</p>
+            </li>
+            <li style="margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 6px; border-left: 4px solid #ff6d00;">
+              <a href="#setoran-transfer" style="text-decoration: none; color: #333; font-weight: 600;">2. Setoran via Transfer</a>
+              <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Transfer dana dari rekening lain ke rekening OZCRYPTO Anda.</p>
+            </li>
+            <li style="margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 6px; border-left: 4px solid #ff6d00;">
+              <a href="#setoran-cek" style="text-decoration: none; color: #333; font-weight: 600;">3. Setoran Cek</a>
+              <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Setor cek untuk diproses ke rekening Anda.</p>
+            </li>
+            <li style="margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 6px; border-left: 4px solid #ff6d00;">
+              <a href="#riwayat-setoran" style="text-decoration: none; color: #333; font-weight: 600;">4. Riwayat Setoran</a>
+              <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Lihat riwayat setoran yang telah dilakukan.</p>
+            </li>
+          </ul>
+        </div>
+        <div id="setoran-tunai" style="margin-top: 30px; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h4 style="color: #a80909; margin-top: 0;">Setoran Tunai</h4>
+          <p>Untuk melakukan setoran tunai, kunjungi cabang OZCRYPTO terdekat atau gunakan ATM OZCRYPTO.</p>
+          <button class="btn-submit" style="margin-top: 10px;">Cari Cabang Terdekat</button>
+        </div>
+        <div id="setoran-transfer" style="margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h4 style="color: #a80909; margin-top: 0;">Setoran via Transfer</h4>
+          <p>Transfer dana dari rekening bank lain ke rekening OZCRYPTO Anda.</p>
+          <p><strong>Nomor Rekening: 123-456-7890</strong></p>
+          <button class="btn-submit" style="margin-top: 10px;">Salin Nomor Rekening</button>
+        </div>
+        <div id="setoran-cek" style="margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h4 style="color: #a80909; margin-top: 0;">Setoran Cek</h4>
+          <p>Setor cek Anda di cabang OZCRYPTO. Pastikan cek valid dan tidak melewati tanggal jatuh tempo.</p>
+          <button class="btn-submit" style="margin-top: 10px;">Jadwalkan Kunjungan</button>
+        </div>
+        <div id="riwayat-setoran" style="margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h4 style="color: #a80909; margin-top: 0;">Riwayat Setoran</h4>
+          <p>Lihat semua setoran yang telah Anda lakukan.</p>
+          <ul style="padding-left: 20px;">
+            <li>12 Feb 2024: Setoran Tunai Rp 1.000.000</li>
+            <li>10 Feb 2024: Transfer dari Bank ABC Rp 500.000</li>
+            <li>05 Feb 2024: Setoran Cek Rp 2.500.000</li>
+          </ul>
+        </div>
+      `;
+      showDetailPage('Setoran', setoranContent, async () => {});
+    });
+
+    document.getElementById('btnTarik').addEventListener('click', () => {
+      const tarikContent = `
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #448aff; margin-bottom: 15px;">Daftar Isi Tarik</h3>
+          <ul style="list-style-type: none; padding: 0;">
+            <li style="margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 6px; border-left: 4px solid #00b0ff;">
+              <a href="#tarik-tunai" style="text-decoration: none; color: #333; font-weight: 600;">1. Tarik Tunai</a>
+              <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Tarik uang tunai dari rekening Anda melalui ATM atau cabang.</p>
+            </li>
+            <li style="margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 6px; border-left: 4px solid #00b0ff;">
+              <a href="#tarik-transfer" style="text-decoration: none; color: #333; font-weight: 600;">2. Tarik via Transfer</a>
+              <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Transfer dana dari rekening OZCRYPTO Anda ke rekening lain.</p>
+            </li>
+            <li style="margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 6px; border-left: 4px solid #00b0ff;">
+              <a href="#tarik-online" style="text-decoration: none; color: #333; font-weight: 600;">3. Tarik Online</a>
+              <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Lakukan penarikan melalui aplikasi atau website OZCRYPTO.</p>
+            </li>
+            <li style="margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 6px; border-left: 4px solid #00b0ff;">
+              <a href="#riwayat-tarik" style="text-decoration: none; color: #333; font-weight: 600;">4. Riwayat Tarik</a>
+              <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Lihat riwayat penarikan yang telah dilakukan.</p>
+            </li>
+          </ul>
+        </div>
+        <div id="tarik-tunai" style="margin-top: 30px; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h4 style="color: #448aff; margin-top: 0;">Tarik Tunai</h4>
+          <p>Gunakan ATM OZCRYPTO atau kunjungi cabang untuk menarik uang tunai.</p>
+          <button class="btn-submit" style="margin-top: 10px; background: #448aff;">Cari ATM Terdekat</button>
+        </div>
+        <div id="tarik-transfer" style="margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h4 style="color: #448aff; margin-top: 0;">Tarik via Transfer</h4>
+          <p>Transfer dana ke rekening bank lain. Masukkan detail rekening tujuan.</p>
+          <form style="margin-top: 10px;">
+            <div class="form-group">
+              <label for="transferAmount">Jumlah (Rp)</label>
+              <input type="number" id="transferAmount" name="transferAmount" required />
+            </div>
+            <div class="form-group">
+              <label for="recipientAccount">Nomor Rekening Tujuan</label>
+              <input type="text" id="recipientAccount" name="recipientAccount" required />
+            </div>
+            <button type="submit" class="btn-submit" style="background: #448aff;">Transfer</button>
+          </form>
+        </div>
+        <div id="tarik-online" style="margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h4 style="color: #448aff; margin-top: 0;">Tarik Online</h4>
+          <p>Lakukan penarikan melalui OZCRYPTO Online Banking atau aplikasi mobile.</p>
+          <button class="btn-submit" style="margin-top: 10px; background: #448aff;">Buka OZCRYPTO Online</button>
+        </div>
+        <div id="riwayat-tarik" style="margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h4 style="color: #448aff; margin-top: 0;">Riwayat Tarik</h4>
+          <p>Lihat semua penarikan yang telah Anda lakukan.</p>
+          <ul style="padding-left: 20px;">
+            <li>15 Feb 2024: Tarik Tunai Rp 500.000</li>
+            <li>12 Feb 2024: Transfer ke Bank XYZ Rp 1.000.000</li>
+            <li>08 Feb 2024: Tarik Online Rp 200.000</li>
+          </ul>
+        </div>
+      `;
+      showDetailPage('Tarik', tarikContent, async () => {});
+    });
+
+    function init() {
+      if (currentUserID) {
+        if (window.location.search.includes('show=dashboard')) {
+          renderDashboard();
+        } else {
+          window.location.href = 'frontpage.html';
+        }
+      } else {
+        showLoginPage();
+      }
+      initMenuEvents();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
